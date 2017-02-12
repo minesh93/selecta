@@ -50,8 +50,8 @@ SelectaInstance.prototype.assignOptions = function(items){
 
 SelectaInstance.prototype.addOption = function(option){
 	this.options.push(option);
-	this.renderOption(option);
-	this.selectaElement.lastChild
+	this.selectaElement.lastChild.appendChild(this.renderOption(option));
+	this.assignHandlerToOption(this.selectaElement.lastChild.lastChild);
 };
 
 SelectaInstance.prototype.renderOption = function(option){
@@ -59,6 +59,16 @@ SelectaInstance.prototype.renderOption = function(option){
 	el.innerHTML = this.settings.itemTemplate(option);
 	el.firstChild.dataset.selecta = option.value;
 	return el.firstChild;
+};
+
+SelectaInstance.prototype.assignHandlerToOption = function(node){
+	var self = this;
+	node.addEventListener('click',function(e){
+		if(e.target.dataset.selecta !== undefined){
+			self.setValue(e.target.dataset.selecta);
+		}
+		self.selectaElement.classList.toggle('selecta-open');
+	});
 };
 
 SelectaInstance.prototype.render = function(){
@@ -96,12 +106,7 @@ SelectaInstance.prototype.assignHandlers = function(){
 	});
 
 	this.selectaElement.children[1].childNodes.forEach(function(node){
-		node.addEventListener('click',function(e){
-			if(e.target.dataset.selecta !== undefined){
-				self.setValue(e.target.dataset.selecta);
-			}
-			self.selectaElement.classList.toggle('selecta-open');
-		});
+		self.assignHandlerToOption(node);
 	});
 };
 
@@ -133,7 +138,7 @@ Selecta('#selecta-1',{});
 
 Selecta('#selecta-2',{},[
 	{
-		text:'Bro',
+		text:'One',
 		value:1
 	}
 ]);
@@ -162,4 +167,4 @@ Selecta('#selecta-3',{
 	},
 ]);
 
-var a = document.querySelectorAll('select')[0];
+//var colouredSelect = document.querySelectorAll('select')[2];
