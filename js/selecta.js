@@ -1,10 +1,10 @@
 
 var SelectaDefaults = {
 	valueField:'value',
-	dataBinding:false,
 	onChange:null,
 	placeholder:'Select Something!',
-	allowSearch:false,
+	showPlaceholder:false,
+	initialOption:'0',
 	itemTemplate:function(o){
 		return '<div class="selecta-item">' + 
 			escape(o.text) +
@@ -22,14 +22,24 @@ var SelectaDefaults = {
 	},
 };
 
+
+var optionProxy = {
+	set:function(target,property,value){
+		console.log(target,value,property);
+		target[property] = value;
+		return true;	
+	}
+}
+
 SelectaInstance = function(element,settings,items){
 	this.element = element;
+	this.settings = settings;
 	this.selectaElement = document.createElement('div');
 	this.selectaElement.classList.add('selecta-wrap');
 	this.element.parentNode.insertBefore(this.selectaElement, this.element.nextSibling);
 	this.element.style.display = "none";
+	// this.options = new Proxy(this.assignOptions(items),optionProxy);
 	this.options = this.assignOptions(items);
-	this.settings = settings;
 	this.render();
 	this.assignHandlers();
 };
@@ -45,7 +55,6 @@ SelectaInstance.prototype.assignOptions = function(items){
 		options = items;
 	}
 	return options;
-
 };
 
 SelectaInstance.prototype.addOption = function(option){
@@ -57,7 +66,19 @@ SelectaInstance.prototype.addOption = function(option){
 SelectaInstance.prototype.renderOption = function(option){
 	var el = document.createElement('div');
 	el.innerHTML = this.settings.itemTemplate(option);
-	el.firstChild.dataset.selecta = option.value;
+	el.firstChild.dataset.selecta = option[this.settings.valueField];
+	return el.firstChild;
+};
+
+SelectaInstance.prototype.renderSelection = function(option){
+	var el = document.createElement('div');
+	el.innerHTML = this.settings.selectedTemplate(option);
+	return el.firstChild;
+};
+
+SelectaInstance.prototype.renderPlaceholder = function(placeholder){
+	var el = document.createElement('div');
+	el.innerHTML = this.settings.placeholderTemplate(placeholder);
 	return el.firstChild;
 };
 
@@ -72,7 +93,6 @@ SelectaInstance.prototype.assignHandlerToOption = function(node){
 };
 
 SelectaInstance.prototype.render = function(){
-
 	var self = this;
 	var itemWrap =  document.createElement('div');
 	var selectedWrap = document.createElement('div');
@@ -84,28 +104,37 @@ SelectaInstance.prototype.render = function(){
 		itemWrap.appendChild(self.renderOption(option));
 	});
 
-	selectedWrap.innerHTML += this.settings.selectedTemplate(this.options[0]);
+	if(this.settings.showPlaceholder){
+		selectedWrap.appendChild(this.renderPlaceholder(this.settings.placeholder));
+	} else {
+		selectedWrap.appendChild(this.renderSelection(this.options[0]));
+	}
+
 	this.selectaElement.appendChild(selectedWrap);
 	this.selectaElement.appendChild(itemWrap);
 };
 
 SelectaInstance.prototype.setValue = function(value) {
-	this.element.value = value;
+	var self = this;
 	var selected = this.options.filter(function(option){
-		return option.value == value;
+		return option[self.settings.valueField] == value;
 	})[0];
 	if(selected !== undefined){
-		this.selectaElement.firstChild.innerHTML = this.settings.selectedTemplate(selected);
+		this.element.value = value;
+		this.selectaElement.firstChild.firstChild.replaceWith(this.renderSelection(selected));
+		if(this.settings.onChange instanceof Function){
+			this.settings.onChange(selected);
+		}
 	}
 };
 
 SelectaInstance.prototype.assignHandlers = function(){
 	var self = this;
-	this.selectaElement.children[0].addEventListener('click', function(e){
+	this.selectaElement.firstChild.addEventListener('click', function(e){
 		self.selectaElement.classList.toggle('selecta-open');
 	});
 
-	this.selectaElement.children[1].childNodes.forEach(function(node){
+	this.selectaElement.lastChild.childNodes.forEach(function(node){
 		self.assignHandlerToOption(node);
 	});
 };
@@ -124,7 +153,7 @@ Selecta = function(selector,settings,items){
 
 var SelectaClickHandler = function(e){
 	if(e.target.closest('.selecta-wrap') === null){
-		if(document.querySelector('.selecta-open') === null){
+		if(document.querySelector('.selecta-open') !== null){
 			document.querySelector('.selecta-open').classList.toggle('selecta-open');
 		}
 	}
@@ -138,12 +167,13 @@ Selecta('#selecta-1',{});
 
 Selecta('#selecta-2',{},[
 	{
-		text:'One',
+		text:'One Test',
 		value:1
 	}
 ]);
 
 Selecta('#selecta-3',{
+		valueField:'color',
 		itemTemplate:function(o){
 			return '<div class="selecta-item" style="color:#ffffff;background:'+o.color+'">' +
 				escape(o.text) + 
@@ -153,18 +183,19 @@ Selecta('#selecta-3',{
 			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
 				escape(o.text) + 
 			'</div>';
+		},
+		onChange:function(setting){
+			console.log(setting);
 		}
 	},[
 	{
 		text:'Red',
-		value:1,
 		color:'#e74c3c'
 	},
 	{
 		text:'Blue',
-		value:2,
-		color:'#2980b9'
+		color:'#2980b9"'
 	},
 ]);
 
-//var colouredSelect = document.querySelectorAll('select')[2];
+var colouredSelect = document.querySelectorAll('select')[2];

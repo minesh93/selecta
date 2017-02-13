@@ -13,6 +13,15 @@
 	cursor: pointer;
 }
 
+.selecta-wrap .selecta-placeholder{
+	display:block;
+	width: 100%;
+	background:#ffffff;
+	padding:15px;
+	user-select:none;
+	cursor: pointer;
+}
+
 .selecta-wrap .selecta-item-wrap{
 	position:absolute;
 	width:100%;
