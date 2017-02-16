@@ -1,7 +1,7 @@
 .selecta-wrap{
 	display: inline-block;
 	width: 100%;
-	/*position:relative;*/
+	position:relative;
 }
 
 .selecta-wrap .selecta-selected{

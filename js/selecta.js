@@ -1,5 +1,5 @@
 
-var SelectaDefaults = {
+const SelectaDefaults = {
 	valueField:'value',
 	onChange:null,
 	placeholder:'Select Something!',
@@ -10,7 +10,7 @@ var SelectaDefaults = {
 			escape(o.text) +
 		'</div>';
 	},
-	placeholderTemplate:function(placeholder){
+	placeholderTemplate: placeholder => {
 		return '<div class="selecta-placeholder">' + 
 			escape(placeholder) + 
 		'</div>';
@@ -22,33 +22,42 @@ var SelectaDefaults = {
 	},
 };
 
-
-var optionProxy = {
-	set:function(target,property,value){
-		console.log(target,value,property);
-		target[property] = value;
-		return true;	
+const Selecta = function(selector,settings,items){
+	let chosenSettings = Object.assign({}, SelectaDefaults, settings);
+	if(typeof(selector) == 'string'){
+		document.querySelectorAll(selector).forEach((node) => {
+			node.select = new SelectaInstance(node,chosenSettings,items);
+		});
+	} else if(selector instanceof Element){
+		selector.select = new SelectaInstance(selector,chosenSettings,items);
 	}
-}
+};
 
-SelectaInstance = function(element,settings,items){
+const SelectaClickHandler = function(e){
+	if(e.target.closest('.selecta-wrap') === null){
+		if(document.querySelector('.selecta-open') !== null){
+			document.querySelector('.selecta-open').classList.toggle('selecta-open');
+		}
+	}
+};
+
+const SelectaInstance = function(element,settings,items){
 	this.element = element;
 	this.settings = settings;
 	this.selectaElement = document.createElement('div');
 	this.selectaElement.classList.add('selecta-wrap');
 	this.element.parentNode.insertBefore(this.selectaElement, this.element.nextSibling);
 	this.element.style.display = "none";
-	// this.options = new Proxy(this.assignOptions(items),optionProxy);
 	this.options = this.assignOptions(items);
 	this.render();
 	this.assignHandlers();
 };
 
 SelectaInstance.prototype.assignOptions = function(items){
-	var options = [];
+	let options = [];
 	if(this.element.children.length){
-		for (var i = 0; i < this.element.children.length; i++) {
-			var option = this.element.children[i];
+		for (let i = 0; i < this.element.children.length; i++) {
+			let option = this.element.children[i];
 			options.push({value:option.value,text:option.text});
 		}
 	} else {
@@ -64,26 +73,26 @@ SelectaInstance.prototype.addOption = function(option){
 };
 
 SelectaInstance.prototype.renderOption = function(option){
-	var el = document.createElement('div');
+	let el = document.createElement('div');
 	el.innerHTML = this.settings.itemTemplate(option);
 	el.firstChild.dataset.selecta = option[this.settings.valueField];
 	return el.firstChild;
 };
 
 SelectaInstance.prototype.renderSelection = function(option){
-	var el = document.createElement('div');
+	let el = document.createElement('div');
 	el.innerHTML = this.settings.selectedTemplate(option);
 	return el.firstChild;
 };
 
 SelectaInstance.prototype.renderPlaceholder = function(placeholder){
-	var el = document.createElement('div');
+	let el = document.createElement('div');
 	el.innerHTML = this.settings.placeholderTemplate(placeholder);
 	return el.firstChild;
 };
 
 SelectaInstance.prototype.assignHandlerToOption = function(node){
-	var self = this;
+	let self = this;
 	node.addEventListener('click',function(e){
 		if(e.target.dataset.selecta !== undefined){
 			self.setValue(e.target.dataset.selecta);
@@ -93,9 +102,9 @@ SelectaInstance.prototype.assignHandlerToOption = function(node){
 };
 
 SelectaInstance.prototype.render = function(){
-	var self = this;
-	var itemWrap =  document.createElement('div');
-	var selectedWrap = document.createElement('div');
+	let self = this;
+	let itemWrap =  document.createElement('div');
+	let selectedWrap = document.createElement('div');
 
 	itemWrap.classList.add('selecta-item-wrap');
 	selectedWrap.classList.add('selecta-selected-wrap');
@@ -115,8 +124,8 @@ SelectaInstance.prototype.render = function(){
 };
 
 SelectaInstance.prototype.setValue = function(value) {
-	var self = this;
-	var selected = this.options.filter(function(option){
+	let self = this;
+	let selected = this.options.filter(function(option){
 		return option[self.settings.valueField] == value;
 	})[0];
 	if(selected !== undefined){
@@ -129,7 +138,7 @@ SelectaInstance.prototype.setValue = function(value) {
 };
 
 SelectaInstance.prototype.assignHandlers = function(){
-	var self = this;
+	let self = this;
 	this.selectaElement.firstChild.addEventListener('click', function(e){
 		self.selectaElement.classList.toggle('selecta-open');
 	});
@@ -139,25 +148,6 @@ SelectaInstance.prototype.assignHandlers = function(){
 	});
 };
 
-Selecta = function(selector,settings,items){
-	var chosenSettings = Object.assign({}, SelectaDefaults, settings);
-	//- 
-	if(typeof(selector) == 'string'){
-		for (var i = 0; i < document.querySelectorAll(selector).length; i++) {
-			document.querySelectorAll(selector)[i].select = new SelectaInstance(document.querySelectorAll(selector)[i],chosenSettings,items);
-		}
-	} else if(selector instanceof Element){
-		document.querySelectorAll(selector)[0].select = new SelectaInstance(document.querySelectorAll(selector)[0],chosenSettings,items);
-	}
-};
-
-var SelectaClickHandler = function(e){
-	if(e.target.closest('.selecta-wrap') === null){
-		if(document.querySelector('.selecta-open') !== null){
-			document.querySelector('.selecta-open').classList.toggle('selecta-open');
-		}
-	}
-};
 
 document.addEventListener('click',SelectaClickHandler);
 
@@ -171,6 +161,15 @@ Selecta('#selecta-2',{},[
 		value:1
 	}
 ]);
+
+let test = [{
+	text:'Red',
+	color:'#e74c3c'
+},
+{
+	text:'Blue',
+	color:'#2980b9"'
+}];
 
 Selecta('#selecta-3',{
 		valueField:'color',
@@ -187,15 +186,25 @@ Selecta('#selecta-3',{
 		onChange:function(setting){
 			console.log(setting);
 		}
-	},[
-	{
-		text:'Red',
-		color:'#e74c3c'
-	},
-	{
-		text:'Blue',
-		color:'#2980b9"'
-	},
-]);
+	},test);
 
-var colouredSelect = document.querySelectorAll('select')[2];
+
+Selecta('#selecta-4',{
+		valueField:'color',
+		itemTemplate:function(o){
+			return '<div class="selecta-item" style="color:#ffffff;background:'+o.color+'">' +
+				escape(o.text) + 
+			'</div>';
+		},
+		selectedTemplate:function(o){
+			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
+				escape(o.text) + 
+			'</div>';
+		},
+		onChange:function(setting){
+			console.log(setting);
+		},
+		showPlaceholder:true,
+	},test);
+
+let colouredSelect = document.querySelectorAll('select')[2];
