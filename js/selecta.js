@@ -5,24 +5,24 @@ const SelectaDefaults = {
 	placeholder:'Select Something!',
 	showPlaceholder:false,
 	initialOption:'0',
-	itemTemplate:(object)=>{
+	itemTemplate:(object,escape)=>{
 		return '<div class="selecta-item">' + 
 			escape(object.text) +
 		'</div>';
 	},
-	placeholderTemplate:(placeholder) => {
+	placeholderTemplate:(placeholder,escape) => {
 		return '<div class="selecta-placeholder">' + 
 			escape(placeholder) + 
 		'</div>';
 	},
-	selectedTemplate:(object)=>{
+	selectedTemplate:(object,escape)=>{
 		return '<div class="selecta-selected">' + 
 			escape(object.text) + 
 		'</div>';
 	},
 };
 
-const Selecta = function(selector,settings,items){
+const Selecta = (selector,settings,items) => {
 	let chosenSettings = Object.assign({}, SelectaDefaults, settings);
 	if(typeof(selector) == 'string'){
 		document.querySelectorAll(selector).forEach((node) => {
@@ -33,12 +33,16 @@ const Selecta = function(selector,settings,items){
 	}
 };
 
-const SelectaClickHandler = function(e){
+const SelectaClickHandler = (e) => {
 	if(e.target.closest('.selecta-wrap') === null){
 		if(document.querySelector('.selecta-open') !== null){
 			document.querySelector('.selecta-open').classList.toggle('selecta-open');
 		}
 	}
+};
+
+const SelectaEscape = (str) => {
+	return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 };
 
 class SelectaInstance{
@@ -53,7 +57,6 @@ class SelectaInstance{
 		this.render();
 		this.assignHandlers();
 	}
-
 
 	assignOptions(items){
 		let options = [];
@@ -76,20 +79,20 @@ class SelectaInstance{
 
 	renderOption(option){
 		let el = document.createElement('div');
-		el.innerHTML = this.settings.itemTemplate(option);
+		el.innerHTML = this.settings.itemTemplate(option,SelectaEscape);
 		el.firstChild.dataset.selecta = option[this.settings.valueField];
 		return el.firstChild;
 	};
 
 	renderSelection(option){
 		let el = document.createElement('div');
-		el.innerHTML = this.settings.selectedTemplate(option);
+		el.innerHTML = this.settings.selectedTemplate(option,SelectaEscape);
 		return el.firstChild;
 	};
 
 	renderPlaceholder(placeholder){
 		let el = document.createElement('div');
-		el.innerHTML = this.settings.placeholderTemplate(placeholder);
+		el.innerHTML = this.settings.placeholderTemplate(placeholder,SelectaEscape);
 		return el.firstChild;
 	};
 
@@ -175,12 +178,12 @@ let test = [{
 
 Selecta('#selecta-3',{
 		valueField:'color',
-		itemTemplate:function(o){
+		itemTemplate:function(o,escape){
 			return '<div class="selecta-item" style="color:#ffffff;background:'+o.color+'">' +
 				escape(o.text) + 
 			'</div>';
 		},
-		selectedTemplate:function(o){
+		selectedTemplate:function(o,escape){
 			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
 				escape(o.text) + 
 			'</div>';
@@ -193,12 +196,12 @@ Selecta('#selecta-3',{
 
 Selecta('#selecta-4',{
 		valueField:'color',
-		itemTemplate:function(o){
+		itemTemplate:function(o,escape){
 			return '<div class="selecta-item" style="color:#ffffff;background:'+o.color+'">' +
 				escape(o.text) + 
 			'</div>';
 		},
-		selectedTemplate:function(o){
+		selectedTemplate:function(o,escape){
 			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
 				escape(o.text) + 
 			'</div>';
