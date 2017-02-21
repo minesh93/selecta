@@ -1,0 +1,31 @@
+{
+  "name": "selecta",
+  "version": "0.0.0",
+  "description": "A lightweight select replacement",
+  "main": "js/selecta.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-preset-env": "^1.1.8"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel js -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minesh93/selecta.git"
+  },
+  "keywords": [
+    "select"
+  ],
+  "presets": [
+    "env"
+  ],
+  "author": "minesh93",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/minesh93/selecta/issues"
+  },
+  "homepage": "https://github.com/minesh93/selecta#readme"
+}
