@@ -56,9 +56,7 @@
 .selecta-wrap .selecta-item-wrap{
 	position:absolute;
 	width:100%;
-	display:none;
-	text-align: center;
-	
+	display:none;	
 }
 
 .selecta-wrap.selecta-open .selecta-item-wrap{
