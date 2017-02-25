@@ -34,10 +34,13 @@ const Selecta = (selector,settings,items) => {
 };
 
 const SelectaClickHandler = (e) => {
+	console.log(e);
 	if(e.target.closest('.selecta-wrap') === null){
 		if(document.querySelector('.selecta-open') !== null){
 			document.querySelector('.selecta-open').classList.toggle('selecta-open');
 		}
+	} else {
+		console.log("SHOULD NOT CLOSE");
 	}
 };
 
@@ -98,8 +101,10 @@ class SelectaInstance{
 
 	assignHandlerToOption(node){
 		node.addEventListener('click',(e) => {
-			if(e.target.dataset.selecta !== undefined){
-				this.setValue(e.target.dataset.selecta);
+			// console.log(e.target.closest(node));
+			let target = e.path.find((n) => n == node);
+			if(target.dataset.selecta !== undefined){
+				this.setValue(target.dataset.selecta);
 			}
 			this.selectaElement.classList.toggle('selecta-open');
 		});
@@ -145,14 +150,13 @@ class SelectaInstance{
 		});
 
 		this.selectaElement.lastChild.childNodes.forEach((node)=>{
+			console.log(node);
 			this.assignHandlerToOption(node);
 		});
 	};
 
 
 };
-
-
 
 document.addEventListener('click',SelectaClickHandler);
 
@@ -167,14 +171,21 @@ Selecta('#selecta-2',{},[
 	}
 ]);
 
-let test = [{
-	text:'Red',
-	color:'#e74c3c'
+
+
+let colours = [{
+	text:'Green',
+	color:'#1abc9c'
 },
 {
 	text:'Blue',
-	color:'#2980b9"'
+	color:'#2980b9'
+},
+{
+	text:'Orange',
+	color:'#e67e22'
 }];
+
 
 Selecta('#selecta-3',{
 		valueField:'color',
@@ -191,7 +202,7 @@ Selecta('#selecta-3',{
 		onChange:function(setting){
 			console.log(setting);
 		}
-	},test);
+	},colours);
 
 
 Selecta('#selecta-4',{
@@ -210,6 +221,27 @@ Selecta('#selecta-4',{
 			console.log(setting);
 		},
 		showPlaceholder:true,
-	},test);
+	},colours);
+
+
+Selecta('#selecta-5',{
+		valueField:'color',
+		itemTemplate:function(o,escape){
+			return '<div class="selecta-person">' +
+				'<div class="background" style="background:'+o.color+'"></div>' +
+				escape(o.text) + 
+			'</div>';
+		},
+		selectedTemplate:function(o,escape){
+			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
+				escape(o.text) + 
+			'</div>';
+		},
+		onChange:function(setting){
+			console.log(setting);
+			console.log("setting value");
+		},
+		showPlaceholder:true,
+	},colours);
 
 let colouredSelect = document.querySelectorAll('select')[2];
