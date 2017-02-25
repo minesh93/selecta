@@ -3,6 +3,7 @@ const SelectaDefaults = {
 	valueField:'value',
 	onChange:null,
 	placeholder:'Select Something!',
+	extraClass:'',
 	showPlaceholder:false,
 	initialOption:'0',
 	itemTemplate:(object,escape)=>{
@@ -34,7 +35,6 @@ const Selecta = (selector,settings,items) => {
 };
 
 const SelectaClickHandler = (e) => {
-	console.log(e);
 	if(e.target.closest('.selecta-wrap') === null){
 		if(document.querySelector('.selecta-open') !== null){
 			document.querySelector('.selecta-open').classList.toggle('selecta-open');
@@ -52,10 +52,6 @@ class SelectaInstance{
 	constructor(element,settings,items){
 		this.element = element;
 		this.settings = settings;
-		this.selectaElement = document.createElement('div');
-		this.selectaElement.classList.add('selecta-wrap');
-		this.element.parentNode.insertBefore(this.selectaElement, this.element.nextSibling);
-		this.element.style.display = "none";
 		this.options = this.assignOptions(items);
 		this.render();
 		this.assignHandlers();
@@ -101,18 +97,24 @@ class SelectaInstance{
 
 	assignHandlerToOption(node){
 		node.addEventListener('click',(e) => {
-			// console.log(e.target.closest(node));
 			let target = e.path.find((n) => n == node);
 			if(target.dataset.selecta !== undefined){
 				this.setValue(target.dataset.selecta);
 			}
-			this.selectaElement.classList.toggle('selecta-open');
 		});
 	};
 
 	render(){
+
 		let itemWrap =  document.createElement('div');
 		let selectedWrap = document.createElement('div');
+
+		this.selectaElement = document.createElement('div');
+		this.selectaElement.classList.add('selecta-wrap');
+
+		if(this.settings.extraClass !== ''){
+			this.selectaElement.classList.add(this.settings.extraClass);
+		}
 
 		itemWrap.classList.add('selecta-item-wrap');
 		selectedWrap.classList.add('selecta-selected-wrap');
@@ -129,6 +131,10 @@ class SelectaInstance{
 
 		this.selectaElement.appendChild(selectedWrap);
 		this.selectaElement.appendChild(itemWrap);
+
+		this.element.parentNode.insertBefore(this.selectaElement, this.element.nextSibling);
+		this.element.style.display = "none";
+
 	};
 
 	setValue(value) {
@@ -145,103 +151,15 @@ class SelectaInstance{
 	};
 
 	assignHandlers(){
-		this.selectaElement.firstChild.addEventListener('click',(e)=>{
+		this.selectaElement.addEventListener('click',(e)=>{
 			this.selectaElement.classList.toggle('selecta-open');
 		});
 
 		this.selectaElement.lastChild.childNodes.forEach((node)=>{
-			console.log(node);
 			this.assignHandlerToOption(node);
 		});
 	};
-
-
 };
 
 document.addEventListener('click',SelectaClickHandler);
 
-
-Selecta('#selecta-1',{});
-
-
-Selecta('#selecta-2',{},[
-	{
-		text:'One Test',
-		value:1
-	}
-]);
-
-
-
-let colours = [{
-	text:'Green',
-	color:'#1abc9c'
-},
-{
-	text:'Blue',
-	color:'#2980b9'
-},
-{
-	text:'Orange',
-	color:'#e67e22'
-}];
-
-
-Selecta('#selecta-3',{
-		valueField:'color',
-		itemTemplate:function(o,escape){
-			return '<div class="selecta-item" style="color:#ffffff;background:'+o.color+'">' +
-				escape(o.text) + 
-			'</div>';
-		},
-		selectedTemplate:function(o,escape){
-			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
-				escape(o.text) + 
-			'</div>';
-		},
-		onChange:function(setting){
-			console.log(setting);
-		}
-	},colours);
-
-
-Selecta('#selecta-4',{
-		valueField:'color',
-		itemTemplate:function(o,escape){
-			return '<div class="selecta-item" style="color:#ffffff;background:'+o.color+'">' +
-				escape(o.text) + 
-			'</div>';
-		},
-		selectedTemplate:function(o,escape){
-			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
-				escape(o.text) + 
-			'</div>';
-		},
-		onChange:function(setting){
-			console.log(setting);
-		},
-		showPlaceholder:true,
-	},colours);
-
-
-Selecta('#selecta-5',{
-		valueField:'color',
-		itemTemplate:function(o,escape){
-			return '<div class="selecta-person">' +
-				'<div class="background" style="background:'+o.color+'"></div>' +
-				escape(o.text) + 
-			'</div>';
-		},
-		selectedTemplate:function(o,escape){
-			return '<div class="selecta-selected" style="color:#ffffff;background:'+o.color+'">' +
-				escape(o.text) + 
-			'</div>';
-		},
-		onChange:function(setting){
-			console.log(setting);
-			console.log("setting value");
-		},
-		showPlaceholder:true,
-	},colours);
-
-let colouredSelect = document.querySelectorAll('select')[2];
