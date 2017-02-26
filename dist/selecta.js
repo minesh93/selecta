@@ -7,13 +7,13 @@ const SelectaDefaults = {
 	showPlaceholder: false,
 	initialOption: '0',
 	itemTemplate: (object, escape) => {
-		return '<div class="selecta-item">' + escape(object.text) + '</div>';
+		return `<div class="selecta-item">${escape(object.text)}</div>`;
 	},
 	placeholderTemplate: (placeholder, escape) => {
-		return '<div class="selecta-placeholder">' + escape(placeholder) + '</div>';
+		return `<div class="selecta-placeholder">${escape(placeholder)}</div>`;
 	},
 	selectedTemplate: (object, escape) => {
-		return '<div class="selecta-selected">' + escape(object.text) + '</div>';
+		return `<div class="selecta-selected">${escape(object.text)}</div>`;
 	}
 };
 
@@ -33,8 +33,6 @@ const SelectaClickHandler = e => {
 		if (document.querySelector('.selecta-open') !== null) {
 			document.querySelector('.selecta-open').classList.toggle('selecta-open');
 		}
-	} else {
-		console.log("SHOULD NOT CLOSE");
 	}
 };
 
